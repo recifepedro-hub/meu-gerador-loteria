@@ -49,8 +49,16 @@ if entrada:
             if st.button("Gerar Nova Aposta"):
                 aposta, impares, soma, coinc, qtd_rep = gerar_aposta(lista_anterior)
                 
-                if aposta:
-                    st.success(f"**Aposta Gerada:** \n\n {str(aposta)[1:-1]}")
+               if aposta:
+                    # Transforma a lista em texto sem colchetes: 01, 02, 03...
+                    jogo_formatado = ", ".join([f"{d:02d}" for d in aposta])
+                    
+                    st.success("**Aposta Gerada!**")
+                    
+                    # O botão de copiar aparece automaticamente aqui:
+                    st.code(jogo_formatado, language=None)
+                    
+                    # O restante dos seus blocos col1, col2... continua igual
                     
                     col1, col2, col3 = st.columns(3)
                     col1.metric("Ímpares", impares)
