@@ -1,10 +1,9 @@
 import streamlit as st
 import random
 
-# Mantemos sua lógica original intacta
+# Lógica de geração
 def gerar_aposta(resultado_anterior_lista):
     dezenas_anteriores = resultado_anterior_lista
-    
     if len(dezenas_anteriores) != 15:
         return None, None, None, None, None
     
@@ -27,16 +26,15 @@ def gerar_aposta(resultado_anterior_lista):
     
     return None, None, None, None, None
 
-# Interface Web com Streamlit
+# Interface Web
 st.set_page_config(page_title="Gerador Pro - Lotofácil", page_icon="🍀")
 st.title("🍀 Gerador de Apostas Inteligentes")
 
 st.markdown("""
 Esta ferramenta utiliza filtros de soma (181-211), ímpares (7-9) 
-e repetição do sorteio anterior (8-10) para gerar seus jogos.
+e repetição do sorteio anterior (8-10).
 """)
 
-# Entrada de dados melhorada para celular
 entrada = st.text_input("Digite as 15 dezenas do último sorteio (espaçadas):", 
                          placeholder="Ex: 01 02 03 05...")
 
@@ -49,16 +47,12 @@ if entrada:
             if st.button("Gerar Nova Aposta"):
                 aposta, impares, soma, coinc, qtd_rep = gerar_aposta(lista_anterior)
                 
-               if aposta:
-                    # Transforma a lista em texto sem colchetes: 01, 02, 03...
-                    jogo_formatado = ", ".join([f"{d:02d}" for d in aposta])
-                    
+                if aposta:
                     st.success("**Aposta Gerada!**")
                     
-                    # O botão de copiar aparece automaticamente aqui:
+                    # Formata o jogo com 0 à esquerda e cria o botão de copiar
+                    jogo_formatado = ", ".join([f"{d:02d}" for d in aposta])
                     st.code(jogo_formatado, language=None)
-                    
-                    # O restante dos seus blocos col1, col2... continua igual
                     
                     col1, col2, col3 = st.columns(3)
                     col1.metric("Ímpares", impares)
@@ -67,7 +61,7 @@ if entrada:
                     
                     st.info(f"**Dezenas que repetiram:** {sorted(list(coinc))}")
                 else:
-                    st.error("Não foi possível gerar uma aposta nos critérios após 10.000 tentativas.")
+                    st.error("Não foi possível gerar uma aposta nos critérios.")
     except ValueError:
         st.error("Entrada inválida. Use apenas números separados por espaço.")
 
