@@ -56,12 +56,12 @@ if entrada:
         if len(lista_anterior) != 15:
             st.warning("⚠️ Precisamos de exatamente 15 números para analisar.")
         else:
-            if st.button("GERAR APOSTA PREMIADA 🚀"):
+            if st.button("GERAR APOSTA 🚀"):
                 aposta, impares, soma, coinc, qtd_rep = gerar_aposta(lista_anterior)
                 
                 if aposta:
                     st.divider()
-                    st.success("### ✅ Aposta Analisada e Gerada!")
+                    st.success("### ✅ Aposta Gerada!")
                     
                     # Formatação visual do jogo
                     jogo_formatado = " - ".join([f"{d:02d}" for d in aposta])
