@@ -41,10 +41,34 @@ def gerar_aposta(resultado_anterior_lista):
 # --- INTERFACE ---
 st.set_page_config(page_title="Loto Turbo", page_icon="🍀")
 
+# Estilos CSS para a Tabela e Botão
 st.markdown("""
     <style>
     .stButton>button { width: 100%; border-radius: 20px; height: 3.5em; background-color: #28a745; color: white; font-weight: bold; border: none; }
-    .metric-container { text-align: center; }
+    .tabela-metricas {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 20px 0;
+        font-family: sans-serif;
+        background-color: #1e1e1e;
+        border-radius: 10px;
+        overflow: hidden;
+    }
+    .tabela-metricas th {
+        background-color: #333;
+        color: #ddd;
+        padding: 10px;
+        font-size: 0.9em;
+        text-transform: uppercase;
+    }
+    .tabela-metricas td {
+        padding: 15px;
+        text-align: center;
+        font-size: 1.5em;
+        font-weight: bold;
+        color: #28a745;
+        border-top: 1px solid #444;
+    }
     #MainMenu {visibility: hidden;}
     footer {visibility: hidden;}
     header {visibility: hidden;}
@@ -60,8 +84,8 @@ if dezenas_api:
     st.success(f"✅ Concurso {concurso_api} carregado!")
     base_calculo = dezenas_api
 else:
-    st.error("⚠️ Informe os dados manualmente:")
-    entrada_manual = st.text_input("15 dezenas do último sorteio:", placeholder="Ex: 01 02 03...")
+    st.error("⚠️ Conexão offline.")
+    entrada_manual = st.text_input("Dezenas do último sorteio:", placeholder="Ex: 01 02 03...")
     if entrada_manual:
         lista_manual = entrada_manual.split()
         if len(lista_manual) == 15:
@@ -73,25 +97,24 @@ if base_calculo:
         if aposta:
             st.divider()
             jogo_formatado = " - ".join([f"{d:02d}" for d in aposta])
-            st.info(f"### Jogo Sugerido:\n**{jogo_formatado}**")
+            st.info(f"### Sugestão Loto Turbo:\n**{jogo_formatado}**")
             st.code(jogo_formatado, language=None)
             
-            # --- NOVA ESTRUTURA DE MÉTRICAS ALINHADAS ---
-            st.write("#### Análise Técnica:")
-            # Criamos 3 colunas para alinhar títulos e valores
-            col1, col2, col3 = st.columns(3)
-            
-            with col1:
-                st.markdown("<p style='text-align: center; margin-bottom: -15px;'><b>Ímpares</b></p>", unsafe_allow_html=True)
-                st.markdown(f"<h3 style='text-align: center;'>{impares}</h3>", unsafe_allow_html=True)
-            
-            with col2:
-                st.markdown("<p style='text-align: center; margin-bottom: -15px;'><b>Soma</b></p>", unsafe_allow_html=True)
-                st.markdown(f"<h3 style='text-align: center;'>{soma}</h3>", unsafe_allow_html=True)
-                
-            with col3:
-                st.markdown("<p style='text-align: center; margin-bottom: -15px;'><b>Repetidas</b></p>", unsafe_allow_html=True)
-                st.markdown(f"<h3 style='text-align: center;'>{len(coinc)}</h3>", unsafe_allow_html=True)
+            # --- TABELA 2X3 PERSONALIZADA ---
+            st.markdown(f"""
+            <table class="tabela-metricas">
+                <tr>
+                    <th>Ímpares</th>
+                    <th>Soma</th>
+                    <th>Repetidas</th>
+                </tr>
+                <tr>
+                    <td>{impares}</td>
+                    <td>{soma}</td>
+                    <td>{len(coinc)}</td>
+                </tr>
+            </table>
+            """, unsafe_allow_html=True)
 
     if 'primeira_vez' not in st.session_state:
         st.session_state.primeira_vez = True
@@ -103,4 +126,4 @@ if base_calculo:
         st.rerun()
 
 with st.expander("🧐 Critérios da IA"):
-    st.write("Repetição (8-10), Ímpares (7-9) e Soma (181-211).")
+    st.write("Análise baseada em: Repetição (8-10), Ímpares (7-9) e Soma (181-211).")
