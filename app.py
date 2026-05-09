@@ -44,6 +44,7 @@ st.set_page_config(page_title="Loto Turbo", page_icon="🍀")
 st.markdown("""
     <style>
     .stButton>button { width: 100%; border-radius: 20px; height: 3.5em; background-color: #28a745; color: white; font-weight: bold; border: none; }
+    .metric-container { text-align: center; }
     #MainMenu {visibility: hidden;}
     footer {visibility: hidden;}
     header {visibility: hidden;}
@@ -52,7 +53,6 @@ st.markdown("""
 
 st.title("🍀 Loto Turbo")
 
-# 1. Tenta carregar dados da API
 dezenas_api, concurso_api = buscar_ultimo_resultado()
 base_calculo = None
 
@@ -67,9 +67,7 @@ else:
         if len(lista_manual) == 15:
             base_calculo = lista_manual
 
-# 2. GERAÇÃO AUTOMÁTICA E BOTÃO
 if base_calculo:
-    # Função para mostrar o jogo na tela (para não repetir código)
     def exibir_jogo(dados_base):
         aposta, impares, soma, coinc, qtd_rep = gerar_aposta(dados_base)
         if aposta:
@@ -78,12 +76,23 @@ if base_calculo:
             st.info(f"### Jogo Sugerido:\n**{jogo_formatado}**")
             st.code(jogo_formatado, language=None)
             
-            c1, c2, c3 = st.columns(3)
-            c1.metric("Ímpares", f"{impares}")
-            c2.metric("Soma", f"{soma}")
-            c3.metric("Repetidas", f"{len(coinc)}")
+            # --- NOVA ESTRUTURA DE MÉTRICAS ALINHADAS ---
+            st.write("#### Análise Técnica:")
+            # Criamos 3 colunas para alinhar títulos e valores
+            col1, col2, col3 = st.columns(3)
+            
+            with col1:
+                st.markdown("<p style='text-align: center; margin-bottom: -15px;'><b>Ímpares</b></p>", unsafe_allow_html=True)
+                st.markdown(f"<h3 style='text-align: center;'>{impares}</h3>", unsafe_allow_html=True)
+            
+            with col2:
+                st.markdown("<p style='text-align: center; margin-bottom: -15px;'><b>Soma</b></p>", unsafe_allow_html=True)
+                st.markdown(f"<h3 style='text-align: center;'>{soma}</h3>", unsafe_allow_html=True)
+                
+            with col3:
+                st.markdown("<p style='text-align: center; margin-bottom: -15px;'><b>Repetidas</b></p>", unsafe_allow_html=True)
+                st.markdown(f"<h3 style='text-align: center;'>{len(coinc)}</h3>", unsafe_allow_html=True)
 
-    # Executa a primeira vez automaticamente
     if 'primeira_vez' not in st.session_state:
         st.session_state.primeira_vez = True
         
@@ -91,7 +100,7 @@ if base_calculo:
 
     st.write("---")
     if st.button("GERAR NOVO PALPITE 🔄"):
-        st.rerun() # Reinicia para gerar uma nova combinação aleatória
+        st.rerun()
 
 with st.expander("🧐 Critérios da IA"):
     st.write("Repetição (8-10), Ímpares (7-9) e Soma (181-211).")
