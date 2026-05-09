@@ -41,57 +41,57 @@ def gerar_aposta(resultado_anterior_lista):
 # --- INTERFACE ---
 st.set_page_config(page_title="Loto Turbo", page_icon="🍀")
 
-# Estilo para esconder elementos e melhorar o botão
+# Estilos e remoção de menus desnecessários
 st.markdown("""
     <style>
     .stButton>button { width: 100%; border-radius: 20px; height: 3.5em; background-color: #28a745; color: white; font-weight: bold; border: none; }
     #MainMenu {visibility: hidden;}
     footer {visibility: hidden;}
+    header {visibility: hidden;}
     </style>
     """, unsafe_allow_html=True)
 
 st.title("🍀 Loto Turbo")
-st.subheader("Gerador Automático de Apostas")
+st.subheader("Gerador Inteligente")
 
 # 1. Tenta carregar dados da API
 dezenas_api, concurso_api = buscar_ultimo_resultado()
 
-# 2. Lógica de exibição Condicional
+# 2. FLUXO DE EXIBIÇÃO (O SEGREDO ESTÁ AQUI)
 base_calculo = None
 
 if dezenas_api:
-    # Se a API funcionar, mostra o sucesso e define a base
-    st.success(f"✅ Concurso {concurso_api} carregado via API")
+    # SE A API FUNCIONA: Mostra apenas o sucesso e os números. O campo manual é pulado.
+    st.success(f"✅ Concurso {concurso_api} carregado automaticamente!")
+    st.write(f"**Números Base:** `{ ' - '.join([f'{d:02d}' for d in dezenas_api]) }`")
     base_calculo = dezenas_api
-    # O campo de texto NÃO é criado aqui, por isso ele some da tela.
 else:
-    # Se a API falhar, aí sim o campo manual aparece
-    st.error("⚠️ Conexão com a Caixa indisponível.")
-    entrada_manual = st.text_input("Insira as 15 dezenas do último sorteio para análise:", placeholder="Ex: 01 02 03...")
+    # SE A API FALHA: Só então a frase e o campo aparecem.
+    st.error("⚠️ Conexão offline. Informe os dados abaixo:")
+    entrada_manual = st.text_input("Por favor, insira as 15 dezenas do último sorteio:", placeholder="Ex: 01 02 03...")
     if entrada_manual:
         lista_manual = entrada_manual.split()
         if len(lista_manual) == 15:
             base_calculo = lista_manual
         else:
-            st.warning("Aguardando 15 dezenas...")
+            st.warning("Aguardando 15 números...")
 
-# 3. Botão de ação (só aparece se houver base de cálculo)
+# 3. BOTÃO DE AÇÃO
 if base_calculo:
     st.divider()
     if st.button("GERAR JOGO AGORA 🚀"):
-        with st.spinner('Processando estatísticas...'):
+        with st.spinner('Analisando tendências...'):
             aposta, impares, soma, coinc, qtd_rep = gerar_aposta(base_calculo)
             if aposta:
                 st.balloons()
                 jogo_formatado = " - ".join([f"{d:02d}" for d in aposta])
-                st.info(f"### Sugestão Loto Turbo:\n**{jogo_formatado}**")
+                st.info(f"### Jogo Sugerido:\n**{jogo_formatado}**")
                 st.code(jogo_formatado, language=None)
                 
-                # Métricas em colunas
                 col1, col2, col3 = st.columns(3)
-                col1.metric("Ímpares", f"{impares}")
-                col2.metric("Soma", f"{soma}")
-                col3.metric("Repetidas", f"{len(coinc)}")
+                col1.metric("Ímpares", f"{impares}", "Ideal")
+                col2.metric("Soma", f"{soma}", "Na Média")
+                col3.metric("Repetidas", f"{len(coinc)}", f"Alvo: {qtd_rep}")
 
 with st.expander("🧐 Como funciona a análise?"):
-    st.write("Filtros: Repetição (8-10), Ímpares (7-9) e Soma (181-211).")
+    st.write("Filtros aplicados: Repetição do anterior (8-10), Equilíbrio de Ímpares (7-9) e Soma das Dezenas (181-211).")
