@@ -41,7 +41,6 @@ def gerar_aposta(resultado_anterior_lista):
 # --- INTERFACE ---
 st.set_page_config(page_title="Loto Turbo", page_icon="🍀")
 
-# Estilos e remoção de menus desnecessários
 st.markdown("""
     <style>
     .stButton>button { width: 100%; border-radius: 20px; height: 3.5em; background-color: #28a745; color: white; font-weight: bold; border: none; }
@@ -52,46 +51,47 @@ st.markdown("""
     """, unsafe_allow_html=True)
 
 st.title("🍀 Loto Turbo")
-st.subheader("Gerador Inteligente")
 
 # 1. Tenta carregar dados da API
 dezenas_api, concurso_api = buscar_ultimo_resultado()
-
-# 2. FLUXO DE EXIBIÇÃO (O SEGREDO ESTÁ AQUI)
 base_calculo = None
 
 if dezenas_api:
-    # SE A API FUNCIONA: Mostra apenas o sucesso e os números. O campo manual é pulado.
-    st.success(f"✅ Concurso {concurso_api} carregado automaticamente!")
-    st.write(f"**Números Base:** `{ ' - '.join([f'{d:02d}' for d in dezenas_api]) }`")
+    st.success(f"✅ Concurso {concurso_api} carregado!")
     base_calculo = dezenas_api
 else:
-    # SE A API FALHA: Só então a frase e o campo aparecem.
-    st.error("⚠️ Conexão offline. Informe os dados abaixo:")
-    entrada_manual = st.text_input("Por favor, insira as 15 dezenas do último sorteio:", placeholder="Ex: 01 02 03...")
+    st.error("⚠️ Informe os dados manualmente:")
+    entrada_manual = st.text_input("15 dezenas do último sorteio:", placeholder="Ex: 01 02 03...")
     if entrada_manual:
         lista_manual = entrada_manual.split()
         if len(lista_manual) == 15:
             base_calculo = lista_manual
-        else:
-            st.warning("Aguardando 15 números...")
 
-# 3. BOTÃO DE AÇÃO
+# 2. GERAÇÃO AUTOMÁTICA E BOTÃO
 if base_calculo:
-    st.divider()
-    if st.button("GERAR JOGO AGORA 🚀"):
-        with st.spinner('Analisando tendências...'):
-            aposta, impares, soma, coinc, qtd_rep = gerar_aposta(base_calculo)
-            if aposta:
-                st.balloons()
-                jogo_formatado = " - ".join([f"{d:02d}" for d in aposta])
-                st.info(f"### Jogo Sugerido:\n**{jogo_formatado}**")
-                st.code(jogo_formatado, language=None)
-                
-                col1, col2, col3 = st.columns(3)
-                col1.metric("Ímpares", f"{impares}", "Ideal")
-                col2.metric("Soma", f"{soma}", "Na Média")
-                col3.metric("Repetidas", f"{len(coinc)}", f"Alvo: {qtd_rep}")
+    # Função para mostrar o jogo na tela (para não repetir código)
+    def exibir_jogo(dados_base):
+        aposta, impares, soma, coinc, qtd_rep = gerar_aposta(dados_base)
+        if aposta:
+            st.divider()
+            jogo_formatado = " - ".join([f"{d:02d}" for d in aposta])
+            st.info(f"### Jogo Sugerido:\n**{jogo_formatado}**")
+            st.code(jogo_formatado, language=None)
+            
+            c1, c2, c3 = st.columns(3)
+            c1.metric("Ímpares", f"{impares}")
+            c2.metric("Soma", f"{soma}")
+            c3.metric("Repetidas", f"{len(coinc)}")
 
-with st.expander("🧐 Como funciona a análise?"):
-    st.write("Filtros aplicados: Repetição do anterior (8-10), Equilíbrio de Ímpares (7-9) e Soma das Dezenas (181-211).")
+    # Executa a primeira vez automaticamente
+    if 'primeira_vez' not in st.session_state:
+        st.session_state.primeira_vez = True
+        
+    exibir_jogo(base_calculo)
+
+    st.write("---")
+    if st.button("GERAR NOVO PALPITE 🔄"):
+        st.rerun() # Reinicia para gerar uma nova combinação aleatória
+
+with st.expander("🧐 Critérios da IA"):
+    st.write("Repetição (8-10), Ímpares (7-9) e Soma (181-211).")
